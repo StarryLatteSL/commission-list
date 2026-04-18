@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>欢迎光临！</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --accent: #00CFC8;
+      --accent-light: #E0FAF9;
+      --accent-dark: #009E98;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f3;
+      --text-primary: #1a1a18;
+      --text-secondary: #5f5e5a;
+      --border: rgba(0, 0, 0, 0.12);
+      --border-hover: rgba(0, 0, 0, 0.25);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1e1e1c;
+        --bg-secondary: #2a2a28;
+        --text-primary: #f0efe8;
+        --text-secondary: #a0a09a;
+        --border: rgba(255, 255, 255, 0.12);
+        --border-hover: rgba(255, 255, 255, 0.25);
+        --accent-light: #0a3533;
+        --accent-dark: #00CFC8;
+      }
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(0, 207, 200, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(153, 53, 86, 0.05) 0%, transparent 40%);
+    }
+
+    /* 保持你原有的 :root 不变 */
+
+    /* 将原有的媒体查询内容复制一份给 .dark-mode 类 */
+    /* 这样即使系统是浅色，只要 HTML 有这个类，就会变黑 */
+    :root.dark-mode {
+      --bg-primary: #1e1e1c;
+      --bg-secondary: #2a2a28;
+      --text-primary: #f0efe8;
+      --text-secondary: #a0a09a;
+      --border: rgba(255, 255, 255, 0.12);
+      --border-hover: rgba(255, 255, 255, 0.25);
+      --accent-light: #0a3533;
+      --accent-dark: #00CFC8;
+    }
+
+    /* 按钮样式：放在右下角或 Logo 旁边 */
+    .theme-toggle {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      border-color: var(--accent);
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .page {
+      position: relative;
+      /* 核心：让 Logo 相对于这个框定位 */
+      width: 100%;
+      max-width: 660px;
+      background: var(--bg-primary);
+      /* 顶部 padding 增加到 4.5rem，为左上角的 Logo 留出呼吸空间 */
+      padding: 4.5rem 2.5rem 3rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      /* 添加右下角阴影：16px 偏移量，40px 模糊度 */
+      box-shadow: 16px 16px 40px rgba(0, 0, 0, 0.08);
+      transition: background 0.3s ease;
+    }
+
+    .site-logo {
+      position: absolute;
+      top: 1.8rem;
+      /* 距离框顶的距离 */
+      left: 2.2rem;
+      /* 距离框左的距离 */
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      font-family: var(--font);
+      user-select: none;
+    }
+
+    .logo-dot {
+      color: var(--accent);
+      /* 使用你标志性的青色点缀 */
+      margin-left: 1px;
+    }
+
+    /* 移动端细调 */
+    @media (max-width: 480px) {
+      .page {
+        padding: 4rem 1.25rem 2rem;
+      }
+
+      .site-logo {
+        top: 1.4rem;
+        left: 1.25rem;
+        font-size: 14px;
+      }
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: var(--accent-light);
+      color: #007A76;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+      letter-spacing: 0.04em;
+    }
+
+    .hero h1 {
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.3;
+      margin-bottom: 0.6rem;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .accent-line {
+      width: 48px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      margin: 1rem auto 0;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .site-footer {
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      /* 添加一条细分割线 */
+      display: flex;
+      justify-content: space-between;
+      /* 左右分布 */
+      align-items: center;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-family: var(--font);
+      letter-spacing: 0.02em;
+    }
+
+    .footer-author {
+      font-weight: 500;
+      text-transform: uppercase;
+      /* 署名大写化，更有设计感 */
+      letter-spacing: 0.05em;
+    }
+
+    /* 移动端适配：改为上下排列 */
+    @media (max-width: 480px) {
+      .site-footer {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+        margin-top: 2rem;
+      }
+    }
+
+    /* Gallery */
+    .gallery-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .gallery-wrap {
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      position: relative;
+    }
+
+    .gallery-wrap::before,
+    .gallery-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 56px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .gallery-wrap::before {
+      left: 0;
+      background: linear-gradient(to right, var(--bg-secondary), transparent);
+    }
+
+    .gallery-wrap::after {
+      right: 0;
+      background: linear-gradient(to left, var(--bg-secondary), transparent);
+    }
+
+    .gallery-track {
+      display: flex;
+      gap: 12px;
+      animation: scroll-left 28s linear infinite;
+      width: max-content;
+    }
+
+    .gallery-track:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes scroll-left {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .gallery-item {
+      width: 180px;
+      height: 220px;
+      flex-shrink: 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 0.5px solid var(--border);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.05);
+    }
+
+    .gallery-item .img-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+      color: #fff;
+      font-size: 12px;
+      padding: 24px 10px 10px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .gallery-item:hover .img-label {
+      opacity: 1;
+    }
+
+    .placeholder-tile {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .ph-icon {
+      width: 32px;
+      height: 32px;
+      opacity: 0.5;
+    }
+
+    .ph-label {
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .ph-hint {
+      font-size: 10px;
+      opacity: 0.6;
+    }
+
+    /* Base cards */
+    .base-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 2rem;
+    }
+
+    .base-card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem 1.25rem 1.2rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .base-card:hover {
+      border-color: var(--accent);
+    }
+
+    .base-card.featured {
+      border: 1.5px solid var(--accent);
+    }
+
+    .base-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .base-card:hover::before,
+    .base-card.featured::before {
+      opacity: 1;
+    }
+
+    .badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.9rem;
+    }
+
+    .card-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .card-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .price-currency {
+      font-size: 14px;
+      color: var(--accent-dark);
+      font-weight: 500;
+    }
+
+    .price-num {
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .price-unit {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Add-ons */
+    .add-section {
+      margin-bottom: 2rem;
+    }
+
+    .add-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .add-card {
+      background: var(--bg-secondary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background 0.2s;
+    }
+
+    .add-card:hover {
+      background: var(--accent-light);
+    }
+
+    .add-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .add-info {
+      flex: 1;
+    }
+
+    .add-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .add-price {
+      font-size: 13px;
+      color: var(--accent-dark);
+      font-weight: 500;
+    }
+
+    .add-note {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* Estimator */
+    .total-box {
+      background: var(--bg-secondary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .total-box h3 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .calc-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .calc-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+      font-family: var(--font);
+    }
+
+    .calc-chip.active {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: #007A76;
+    }
+
+    .chip-check {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      border: 1.5px solid var(--border-hover);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .calc-chip.active .chip-check {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .chip-checkmark {
+      display: none;
+      width: 8px;
+      height: 8px;
+    }
+
+    .calc-chip.active .chip-checkmark {
+      display: block;
+    }
+
+    .total-result {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      padding-top: 1rem;
+      border-top: 0.5px solid var(--border);
+    }
+
+    .total-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      flex: 1;
+    }
+
+    .total-range {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .footer-note {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: 0.9rem 1.1rem;
+      font-size: 13px;
+      color: #007A76;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 480px) {
+
+      .base-grid,
+      .add-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .price-num {
+        font-size: 24px;
+      }
+
+      .gallery-item {
+        width: 140px;
+        height: 175px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="site-logo">SL Studio<span class="logo-dot">.</span></div>
+
+    <div class="hero">
+      <div class="hero-tag">欢迎光临！</div>
+      <h1>价格表？价格表</h1>
+      <p>根据您的需求选择画幅类型与附加选项，<br>即可获得参考报价区间。</p>
+      <div class="accent-line"></div>
+    </div>
+
+    <!-- Gallery -->
+    <div class="gallery-section">
+      <p class="section-title">稿件画廊</p>
+      <div class="gallery-wrap">
+        <div class="gallery-track" id="track"></div>
+      </div>
+    </div>
+
+    <!-- Base prices -->
+    <p class="section-title">基础价格</p>
+    <div class="base-grid">
+      <div class="base-card">
+        <div class="card-icon">
+          <svg viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="6" r="3" stroke="#00CFC8" stroke-width="1.5" />
+            <path d="M3 17c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#00CFC8" stroke-width="1.5"
+              stroke-linecap="round" />
+            <line x1="3" y1="13" x2="15" y2="13" stroke="#00CFC8" stroke-width="1.5" stroke-linecap="round"
+              stroke-dasharray="2 2" />
+          </svg>
+        </div>
+        <div class="card-name">半身像</div>
+        <div class="card-desc">重点聚焦，魅力集中</div>
+        <div class="price-row">
+          <span class="price-currency">¥</span>
+          <span class="price-num">350</span>
+          <span class="price-unit">/ 位</span>
+        </div>
+      </div>
+      <div class="base-card featured">
+        <div class="badge">完整呈现</div>
+        <div class="card-icon">
+          <svg viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="4.5" r="2.5" stroke="#00CFC8" stroke-width="1.5" />
+            <path d="M4 17.5c0-2.761 2.239-5 5-5s5 2.239 5 5" stroke="#00CFC8" stroke-width="1.5"
+              stroke-linecap="round" />
+            <line x1="6" y1="10" x2="6" y2="17" stroke="#00CFC8" stroke-width="1.5" stroke-linecap="round" />
+            <line x1="12" y1="10" x2="12" y2="17" stroke="#00CFC8" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="card-name">全身像</div>
+        <div class="card-desc">从头到蹄，一网打尽</div>
+        <div class="price-row">
+          <span class="price-currency">¥</span>
+          <span class="price-num">490</span>
+          <span class="price-unit">/ 位</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add-ons -->
+    <p class="section-title">附加选项</p>
+    <div class="add-section">
+      <div class="add-grid">
+        <div class="add-card">
+          <div class="add-dot"></div>
+          <div class="add-info">
+            <div class="add-name">场景背景</div>
+            <div class="add-price">+¥200 – 500</div>
+            <div class="add-note">简单到复杂场景</div>
+          </div>
+        </div>
+        <div class="add-card">
+          <div class="add-dot"></div>
+          <div class="add-info">
+            <div class="add-name">服装设计</div>
+            <div class="add-price">+¥100 – 400</div>
+            <div class="add-note">简单到复杂服装</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estimator -->
+    <div class="total-box">
+      <h3>价格估算器</h3>
+      <div class="calc-row">
+        <div class="calc-chip" data-type="base" data-min="350" data-max="350" onclick="toggleChip(this)">
+          <div class="chip-check"><svg class="chip-checkmark" viewBox="0 0 8 8">
+              <polyline points="1,4 3,6 7,2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg></div>
+          半身像 ¥350
+        </div>
+        <div class="calc-chip" data-type="base" data-min="490" data-max="490" onclick="toggleChip(this)">
+          <div class="chip-check"><svg class="chip-checkmark" viewBox="0 0 8 8">
+              <polyline points="1,4 3,6 7,2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg></div>
+          全身像 ¥490
+        </div>
+        <div class="calc-chip" data-type="add" data-min="200" data-max="500" onclick="toggleChip(this)">
+          <div class="chip-check"><svg class="chip-checkmark" viewBox="0 0 8 8">
+              <polyline points="1,4 3,6 7,2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg></div>
+          + 场景
+        </div>
+        <div class="calc-chip" data-type="add" data-min="100" data-max="400" onclick="toggleChip(this)">
+          <div class="chip-check"><svg class="chip-checkmark" viewBox="0 0 8 8">
+              <polyline points="1,4 3,6 7,2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg></div>
+          + 服装
+        </div>
+      </div>
+      <div class="total-result">
+        <span class="total-label">参考总价</span>
+        <span class="total-range" id="total-display">请选择选项</span>
+      </div>
+    </div>
+
+    <div class="footer-note" style="margin-bottom: 15px;">
+      以上价格为单人参考报价，实际价格以沟通确认为准。多人或特殊需求欢迎私信询价。
+    </div>
+
+    <div class="footer-note">
+      暂不接受复杂设。
+    </div>
+
+    <div id="image-overlay"
+      style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center; cursor: zoom-out; opacity: 0; transition: opacity 0.3s ease;">
+      <img id="overlay-img" src=""
+        style="max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s ease;">
+      <div style="position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; cursor: pointer;">&times;
+      </div>
+    </div>
+    <div class="site-footer">
+      <div class="footer-contact">QQ: 3945716955</div>
+      <div class="footer-author">© 2026 Designed by StarryLatte</div>
+    </div>
+    <button class="theme-toggle" id="theme-toggle" aria-label="切换主题">
+      <svg id="theme-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
+  </div>
+
+  <script>
+    // ── 1. 现有的 Gallery 数据 ──
+    const items = [
+      { label: '前景半身', src: 'images/嗜星初稿.jpg' },
+      { label: '全身+服装', src: 'images/雀雀.png' },
+      { label: '半身+服装', src: 'images/小狐狸.png' },
+      { label: '半身', src: 'images/奥宾.jpg' },
+      { label: '半身', src: 'images/LD.jpg' },
+      { label: '半身', src: 'images/BS.jpg' },
+    ];
+
+    // ── 2. 核心函数：创建画廊方块 ──
+    function makeTile(item) {
+      const div = document.createElement('div');
+      div.className = 'gallery-item';
+
+      // 点击图片触发 openPreview 函数
+      div.innerHTML = `
+      <img src="${item.src}" alt="${item.label}" onclick="openPreview('${item.src}')" style="width:100%; height:100%; object-fit:cover;">
+      <div class="img-label">${item.label}</div>
+    `;
+
+      return div;
+    }
+
+    // ── 3. 初始化画廊渲染 ──
+    const track = document.getElementById('track');
+    if (track) {
+      // 复制两遍以实现无缝循环滚动
+      [...items, ...items].forEach(item => track.appendChild(makeTile(item)));
+    }
+
+    // ── 4. 图片大图预览逻辑 ──
+    const overlay = document.getElementById('image-overlay');
+    const overlayImg = document.getElementById('overlay-img');
+
+    function openPreview(src) {
+      if (!overlay || !overlayImg) return;
+      overlayImg.src = src;
+      overlay.style.display = 'flex';
+
+      // 强制重绘触发淡入淡出和缩放动画
+      setTimeout(() => {
+        overlay.style.opacity = '1';
+        overlayImg.style.transform = 'scale(1)';
+      }, 10);
+    }
+
+    // 点击遮罩层任何位置关闭大图
+    if (overlay) {
+      overlay.onclick = function () {
+        overlay.style.opacity = '0';
+        overlayImg.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          overlay.style.display = 'none';
+        }, 300);
+      };
+    }
+
+    // ── 5. 价格估算器逻辑 ──
+    function toggleChip(el) {
+      if (el.dataset.type === 'base') {
+        document.querySelectorAll('[data-type="base"]').forEach(c => {
+          if (c !== el) c.classList.remove('active');
+        });
+      }
+      el.classList.toggle('active');
+      updateTotal();
+    }
+
+    function updateTotal() {
+      const active = [...document.querySelectorAll('.calc-chip.active')];
+      const out = document.getElementById('total-display');
+      if (!out) return;
+
+      if (!active.length) { out.textContent = '请选择选项'; return; }
+
+      const hasBase = active.some(c => c.dataset.type === 'base');
+      if (!hasBase) { out.textContent = '请先选择基础类型'; return; }
+
+      const minT = active.reduce((s, c) => s + +c.dataset.min, 0);
+      const maxT = active.reduce((s, c) => s + +c.dataset.max, 0);
+
+      out.textContent = minT === maxT ? '¥' + minT : '¥' + minT + ' – ' + maxT;
+    }
+    // ── 6. 深色模式切换逻辑 ──
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const htmlElement = document.documentElement;
+
+    // 太阳图标的路径 (SVG Path)
+    const sunPath = `<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>`;
+    // 月亮图标的路径
+    const moonPath = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
+
+    // 初始化检查
+    if (localStorage.getItem('theme') === 'dark') {
+      htmlElement.classList.add('dark-mode');
+      themeIcon.innerHTML = sunPath;
+    }
+
+    themeToggle.addEventListener('click', () => {
+      htmlElement.classList.toggle('dark-mode');
+
+      if (htmlElement.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+        themeIcon.innerHTML = sunPath; // 变黑后显示太阳（用来切回白天）
+      } else {
+        localStorage.setItem('theme', 'light');
+        themeIcon.innerHTML = moonPath; // 变白后显示月亮（用来切回黑夜）
+      }
+    });
+  </script>
+</body>
+
+</html>
