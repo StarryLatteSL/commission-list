@@ -1,0 +1,1995 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SL STUDIO — 稿件展示 & 报价</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --accent: #15E0C4;
+      --accent-glow: rgba(21, 224, 196, 0.25);
+      --accent-soft: rgba(21, 224, 196, 0.08);
+    }
+
+    /* Dark theme (default) */
+    [data-theme="dark"] {
+      --bg: #0a0b0d;
+      --bg-elevated: #111317;
+      --bg-card: #15181d;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-strong: rgba(255, 255, 255, 0.12);
+      --text: #e8e6e1;
+      --text-dim: #8a8680;
+      --text-muted: #56524d;
+      --shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.6);
+      --grain-opacity: 0.04;
+    }
+
+    /* Light theme */
+    [data-theme="light"] {
+      --bg: #f5f3ee;
+      --bg-elevated: #ffffff;
+      --bg-card: #ffffff;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.15);
+      --text: #1a1a1a;
+      --text-dim: #6b6660;
+      --text-muted: #a8a39d;
+      --shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.15);
+      --grain-opacity: 0.025;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Noto Serif SC', 'Cormorant Garamond', serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.4s ease, color 0.4s ease;
+      position: relative;
+    }
+
+    /* Grain texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: var(--grain-opacity);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+
+    /* === Layout === */
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 35%;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* === Left Panel === */
+    .left-panel {
+      position: relative;
+      overflow: hidden;
+      border-right: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    /* Header */
+    .header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      padding: 28px 40px 20px;
+      background: linear-gradient(to bottom, var(--bg) 50%, transparent);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .logo {
+      position: relative;
+      display: inline-block;
+    }
+
+    .logo-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .logo-dot {
+      position: absolute;
+      bottom: -2px;
+      right: -10px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.6;
+        transform: scale(0.85);
+      }
+    }
+
+    .logo-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      color: var(--text-muted);
+      margin-top: 6px;
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .section-label .dash {
+      color: var(--accent);
+      margin-right: 6px;
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    [data-theme="light"] .theme-toggle::after {
+      transform: translateX(20px);
+    }
+
+    /* ========== Queue Bar 排单系统 ========== */
+    .queue-bar {
+      position: absolute;
+      top: 88px;
+      left: 40px;
+      right: 40px;
+      z-index: 8;
+      padding: 16px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      backdrop-filter: blur(8px);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 24px;
+      align-items: center;
+    }
+
+    /* 接稿状态 */
+    .queue-status {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 130px;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+      animation: pulse 2s infinite;
+    }
+
+    .status-dot.closed {
+      background: #d45a5a;
+      box-shadow: 0 0 8px rgba(212, 90, 90, 0.4);
+      animation: none;
+    }
+
+    .status-text {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .status-toggle {
+      background: none;
+      border: 1px solid var(--border-strong);
+      color: var(--text-dim);
+      width: 22px;
+      height: 22px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+      padding: 0;
+    }
+
+    .status-toggle:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .status-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+    }
+
+    .status-count em {
+      font-style: normal;
+      color: var(--accent);
+      font-weight: 500;
+      font-size: 12px;
+      margin: 0 2px;
+    }
+
+    .count-remain {
+      color: var(--text-muted);
+      margin-left: 4px;
+    }
+
+    /* 排单列表 */
+    .queue-list-wrap {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .queue-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .queue-dash {
+      color: var(--accent);
+    }
+
+    .queue-scroll {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
+      padding-bottom: 4px;
+    }
+
+    .queue-scroll::-webkit-scrollbar {
+      height: 3px;
+    }
+
+    .queue-scroll::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 2px;
+    }
+
+    .queue-list {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .queue-item {
+      position: relative;
+      padding: 6px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border-strong);
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      transition: all 0.25s ease;
+      cursor: default;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .queue-item.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .queue-item-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1;
+      opacity: 0;
+      transition: opacity 0.25s ease, color 0.25s ease;
+    }
+
+    .queue-item:hover .queue-item-remove {
+      opacity: 1;
+    }
+
+    .queue-item-remove:hover {
+      color: #d45a5a;
+    }
+
+    .queue-item-work {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      font-size: 10px;
+      line-height: 1;
+      opacity: 0;
+      transition: opacity 0.25s ease, color 0.25s ease;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.1em;
+    }
+
+    .queue-item:hover .queue-item-work {
+      opacity: 1;
+    }
+
+    .queue-item-work:hover {
+      color: var(--accent);
+    }
+
+    .queue-item.active .queue-item-work {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    .queue-add {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 3px;
+      background: none;
+      border: 1px dashed var(--border-strong);
+      color: var(--text-dim);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+      padding: 0;
+    }
+
+    .queue-add:hover {
+      border-color: var(--accent);
+      border-style: solid;
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    /* Working 条 */
+    .working-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      min-width: 120px;
+    }
+
+    .working-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .working-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 22px;
+      color: var(--accent);
+      line-height: 1;
+      font-weight: 500;
+    }
+
+    /* Scroll area */
+    .scroll-viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      padding-top: 200px;
+    }
+
+    .scroll-track {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      padding: 0 40px 40px;
+      animation: scrollUp 30s linear infinite;
+    }
+
+    .scroll-track.paused {
+      animation-play-state: paused;
+    }
+
+    @keyframes scrollUp {
+      0% {
+        transform: translateY(0);
+      }
+
+      100% {
+        transform: translateY(-50%);
+      }
+    }
+
+    /* Masonry columns */
+    .scroll-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Artwork card */
+    .art-card {
+      position: relative;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s;
+    }
+
+    .art-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .art-card img,
+    .art-card svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .art-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    /* A 列的错落节奏 */
+    .scroll-col:nth-child(odd) .art-card:nth-child(3n+1) img {
+      aspect-ratio: 3 / 4;
+    }
+
+    .scroll-col:nth-child(odd) .art-card:nth-child(3n+2) img {
+      aspect-ratio: 4 / 5;
+    }
+
+    .scroll-col:nth-child(odd) .art-card:nth-child(3n+3) img {
+      aspect-ratio: 1 / 1;
+    }
+
+    /* B 列错开节奏，避免两列同步 */
+    .scroll-col:nth-child(even) .art-card:nth-child(3n+1) img {
+      aspect-ratio: 4 / 5;
+    }
+
+    .scroll-col:nth-child(even) .art-card:nth-child(3n+2) img {
+      aspect-ratio: 1 / 1;
+    }
+
+    .scroll-col:nth-child(even) .art-card:nth-child(3n+3) img {
+      aspect-ratio: 3 / 4;
+    }
+
+    .art-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top,
+          rgba(10, 11, 13, 0.92) 0%,
+          rgba(10, 11, 13, 0.5) 40%,
+          transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 20px;
+    }
+
+    .art-card:hover .art-overlay {
+      opacity: 1;
+    }
+
+    .art-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .art-type::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    .art-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-style: italic;
+      color: #fff;
+      font-weight: 400;
+    }
+
+    .art-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 4px;
+    }
+
+    /* === Right Panel === */
+    .right-panel {
+      background: var(--bg-elevated);
+      overflow-y: auto;
+      padding: 40px 44px;
+      position: relative;
+    }
+
+    .right-panel::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .right-panel::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .right-panel::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 2px;
+    }
+
+    .right-header {
+      margin-bottom: 36px;
+    }
+
+    .right-kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .right-kicker::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .right-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 46px;
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: -0.01em;
+    }
+
+    .right-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .right-subtitle {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-top: 14px;
+      line-height: 1.6;
+    }
+
+    /* Price cards */
+    .price-section {
+      margin-bottom: 40px;
+    }
+
+    .section-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-style: italic;
+      font-weight: 500;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      color: var(--text);
+    }
+
+    .section-heading .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-style: normal;
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.2em;
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .price-card {
+      padding: 22px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .price-card:hover {
+      border-color: var(--accent);
+    }
+
+    .price-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .price-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .price-card-label {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+
+    .price-card-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .price-card-value .currency {
+      font-size: 18px;
+      color: var(--accent);
+      margin-right: 2px;
+      vertical-align: top;
+      position: relative;
+      top: 4px;
+    }
+
+    .price-card-value .unit {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-left: 4px;
+      font-weight: 400;
+    }
+
+    /* Add-ons */
+    .addon-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .addon-item {
+      padding: 14px 0;
+      border-bottom: 1px dashed var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .addon-item:last-child {
+      border-bottom: none;
+    }
+
+    .addon-name {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .addon-desc {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 12px;
+      font-style: italic;
+      color: var(--text-dim);
+      display: block;
+      margin-top: 2px;
+    }
+
+    .addon-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    /* Estimator */
+    .estimator {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 26px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .estimator::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .estimator-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-style: italic;
+      margin-bottom: 4px;
+    }
+
+    .estimator-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field-label {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .field-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+    }
+
+    /* Segmented control */
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px;
+      position: relative;
+    }
+
+    .seg-option {
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 12px;
+      color: var(--text-dim);
+      border-radius: 3px;
+      transition: color 0.3s ease;
+      position: relative;
+      z-index: 1;
+      user-select: none;
+    }
+
+    .seg-option.active {
+      color: var(--bg);
+    }
+
+    [data-theme="light"] .seg-option.active {
+      color: #fff;
+    }
+
+    .seg-indicator {
+      position: absolute;
+      top: 3px;
+      bottom: 3px;
+      left: 3px;
+      width: calc(50% - 3px);
+      background: var(--accent);
+      border-radius: 3px;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .segmented[data-value="full"] .seg-indicator {
+      transform: translateX(100%);
+    }
+
+    /* Slider */
+    .slider-wrap {
+      position: relative;
+      padding: 8px 0;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 2px;
+      background: var(--border-strong);
+      border-radius: 1px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 0 4px var(--accent-soft), 0 0 10px var(--accent-glow);
+      transition: all 0.2s ease;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 6px var(--accent-soft), 0 0 16px var(--accent-glow);
+    }
+
+    .slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .slider-ticks {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* Total */
+    .total-bar {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .total-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 16px;
+      color: var(--text-dim);
+    }
+
+    .total-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 42px;
+      font-weight: 500;
+      color: var(--accent);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .total-value .currency {
+      font-size: 20px;
+      margin-right: 2px;
+    }
+
+    /* Note */
+    .note {
+      margin-top: 24px;
+      padding: 16px;
+      background: var(--accent-soft);
+      border-left: 2px solid var(--accent);
+      border-radius: 2px;
+    }
+
+    .note-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .note-text {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .note-text+.note-text {
+      margin-top: 6px;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(20px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .lightbox.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .lightbox-content {
+      max-width: 80vw;
+      max-height: 85vh;
+      position: relative;
+      transform: scale(0.95);
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .lightbox.active .lightbox-content {
+      transform: scale(1);
+    }
+
+    .lightbox-content {
+      max-width: 80vw;
+      max-height: 85vh;
+      position: relative;
+      transform: scale(0.95);
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox.active .lightbox-content {
+      transform: scale(1);
+    }
+
+    .lightbox-content svg,
+    .lightbox-content img {
+      max-width: 80vw;
+      max-height: 85vh;
+      width: auto;
+      height: auto;
+      display: block;
+      object-fit: contain;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    #lightboxImage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 80vw;
+      max-height: 85vh;
+    }
+
+    .lightbox-meta {
+      position: absolute;
+      bottom: -48px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+    }
+
+    .lightbox-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 20px;
+    }
+
+    .lightbox-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .lightbox-close:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+    }
+
+    /* Footer stamp */
+    .footer-stamp {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .footer-stamp .accent-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    /* Decorative corner marks */
+    .corner-mark {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-color: var(--accent);
+      opacity: 0.6;
+      z-index: 5;
+    }
+
+    .corner-mark.tl {
+      top: 20px;
+      left: 20px;
+      border-top: 1px solid;
+      border-left: 1px solid;
+    }
+
+    .corner-mark.tr {
+      top: 20px;
+      right: 20px;
+      border-top: 1px solid;
+      border-right: 1px solid;
+    }
+
+    .corner-mark.bl {
+      bottom: 20px;
+      left: 20px;
+      border-bottom: 1px solid;
+      border-left: 1px solid;
+    }
+
+    .corner-mark.br {
+      bottom: 20px;
+      right: 20px;
+      border-bottom: 1px solid;
+      border-right: 1px solid;
+    }
+  </style>
+</head>
+
+<body data-theme="dark">
+
+  <div class="container">
+
+    <!-- ========== LEFT PANEL ========== -->
+    <div class="left-panel">
+      <div class="corner-mark tl"></div>
+      <div class="corner-mark tr"></div>
+      <div class="corner-mark bl"></div>
+      <div class="corner-mark br"></div>
+
+      <div class="header">
+        <div>
+          <div class="logo">
+            <span class="logo-text">SL STUDIO</span>
+            <span class="logo-dot"></span>
+          </div>
+          <div class="logo-sub">Illustration · Commission</div>
+        </div>
+        <div class="header-right">
+          <span class="section-label"><span class="dash">—</span>Portfolio / 2026</span>
+          <div class="theme-toggle" id="themeToggle" title="切换主题"></div>
+        </div>
+      </div>
+
+      <!-- ========== 接稿状态 & 排单系统 ========== -->
+      <div class="queue-bar" id="queueBar">
+        <div class="queue-status">
+          <div class="status-indicator">
+            <span class="status-dot" id="statusDot"></span>
+            <span class="status-text" id="statusText">接稿中</span>
+            <button class="status-toggle" id="statusToggle" title="切换接稿状态">⇄</button>
+          </div>
+          <div class="status-count">
+            已接 <em id="countCurrent">0</em> / 上限 <em id="countMax">5</em>
+            <span class="count-remain">· 剩 <em id="countRemain">5</em> 位</span>
+          </div>
+        </div>
+
+        <div class="queue-list-wrap">
+          <div class="queue-label">
+            <span class="queue-dash">—</span>
+            <span>Queue · 排单</span>
+          </div>
+          <div class="queue-scroll">
+            <div class="queue-list" id="queueList">
+              <!-- 号码会动态生成 -->
+            </div>
+            <button class="queue-add" id="queueAdd" title="添加今日号码">+</button>
+          </div>
+        </div>
+
+        <div class="working-bar">
+          <span class="working-label">Working · 当前绘制</span>
+          <span class="working-number" id="workingNumber">—</span>
+        </div>
+      </div>
+      <div class="scroll-viewport" id="scrollViewport">
+        <div class="scroll-track" id="scrollTrack">
+          <!-- Track will be populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== RIGHT PANEL ========== -->
+    <div class="right-panel">
+      <div class="right-header">
+        <div class="right-kicker">Pricing · 价目</div>
+        <h1 class="right-title">关于<em>委托</em>的<br>几项说明</h1>
+        <p class="right-subtitle">以下为单人参考报价。每一笔委托都始于一次认真的对话，<br>欢迎告诉我你心中的形象。</p>
+      </div>
+
+      <!-- Base pricing -->
+      <section class="price-section">
+        <h2 class="section-heading">
+          <span>基础报价 <em>·</em> Base</span>
+          <span class="num">01 / 03</span>
+        </h2>
+        <div class="price-grid">
+          <div class="price-card">
+            <div class="price-card-label">半身像 · Bust</div>
+            <div class="price-card-value">
+              <span class="currency">¥</span>350<span class="unit">/ 位</span>
+            </div>
+          </div>
+          <div class="price-card">
+            <div class="price-card-label">全身像 · Full</div>
+            <div class="price-card-value">
+              <span class="currency">¥</span>490<span class="unit">/ 位</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Add-ons -->
+      <section class="price-section">
+        <h2 class="section-heading">
+          <span>附加选项 <em>·</em> Add-ons</span>
+          <span class="num">02 / 03</span>
+        </h2>
+        <div class="addon-list">
+          <div class="addon-item">
+            <div>
+              <div class="addon-name">场景背景</div>
+              <span class="addon-desc">Scene Background · 简单到复杂</span>
+            </div>
+            <div class="addon-price">+¥ 200 — 500</div>
+          </div>
+          <div class="addon-item">
+            <div>
+              <div class="addon-name">服装设计</div>
+              <span class="addon-desc">Costume Design · 简单到复杂</span>
+            </div>
+            <div class="addon-price">+¥ 100 — 400</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Estimator -->
+      <section class="price-section">
+        <h2 class="section-heading">
+          <span>价格估算器 <em>·</em> Estimator</span>
+          <span class="num">03 / 03</span>
+        </h2>
+        <div class="estimator">
+          <div class="estimator-title">Your Commission</div>
+          <div class="estimator-sub">— Move the sliders to estimate</div>
+
+          <!-- Type selector -->
+          <div class="field">
+            <div class="field-label">
+              <span>类型 / Type</span>
+            </div>
+            <div class="segmented" id="typeSeg" data-value="bust">
+              <div class="seg-indicator"></div>
+              <div class="seg-option active" data-value="bust">半身像 ¥350</div>
+              <div class="seg-option" data-value="full">全身像 ¥490</div>
+            </div>
+          </div>
+
+          <!-- Background slider -->
+          <div class="field">
+            <div class="field-label">
+              <span>场景背景 / Background</span>
+              <span class="field-value" id="bgValue">+¥ 0</span>
+            </div>
+            <div class="slider-wrap">
+              <input type="range" min="0" max="3" step="1" value="0" class="slider" id="bgSlider">
+              <div class="slider-ticks">
+                <span>无</span>
+                <span>简单</span>
+                <span>中等</span>
+                <span>复杂</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Costume slider -->
+          <div class="field">
+            <div class="field-label">
+              <span>服装设计 / Costume</span>
+              <span class="field-value" id="costumeValue">+¥ 0</span>
+            </div>
+            <div class="slider-wrap">
+              <input type="range" min="0" max="3" step="1" value="0" class="slider" id="costumeSlider">
+              <div class="slider-ticks">
+                <span>无</span>
+                <span>简单</span>
+                <span>中等</span>
+                <span>复杂</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- People count -->
+          <div class="field">
+            <div class="field-label">
+              <span>人数 / People</span>
+              <span class="field-value" id="countValue">1 位</span>
+            </div>
+            <div class="slider-wrap">
+              <input type="range" min="1" max="4" step="1" value="1" class="slider" id="countSlider">
+              <div class="slider-ticks">
+                <span>1</span>
+                <span>2</span>
+                <span>3</span>
+                <span>4</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="total-bar">
+            <span class="total-label">预估总价</span>
+            <div class="total-value"><span class="currency">¥</span><span id="totalValue">350</span></div>
+          </div>
+        </div>
+
+        <div class="note">
+          <div class="note-label">— Note 小提示</div>
+          <div class="note-text">以上价格为单人参考报价，实际价格以沟通确认为准。</div>
+          <div class="note-text">多人或特殊需求欢迎私信询价，暂不接受复杂设。</div>
+        </div>
+      </section>
+
+      <div class="footer-stamp">
+        <span><span class="accent-dot"></span>SL STUDIO · MMXXVI</span>
+        <span>Last updated · 04·26</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-content">
+      <button class="lightbox-close" id="lightboxClose">×</button>
+      <div id="lightboxImage"></div>
+      <div class="lightbox-meta">
+        <div class="lightbox-title" id="lightboxTitle"></div>
+        <div class="lightbox-type" id="lightboxType"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ============ SVG ARTWORK GENERATOR ============ */
+    /* Generates stylized illustrated "portfolio pieces" as SVG.
+       Each piece varies in palette, subject pose, and type (bust/full). */
+
+    const palettes = [
+      { bg: '#2a1f3d', skin: '#f4d4b8', hair: '#3d2a4a', accent: '#e8b4d4', cloth: '#8b5a8c' },
+      { bg: '#1e3a3a', skin: '#e8c4a0', hair: '#2d4a3a', accent: '#a8d4c8', cloth: '#4a6b6b' },
+      { bg: '#3d2a1e', skin: '#f0c8a0', hair: '#1a1a2e', accent: '#d4a574', cloth: '#6b4a3a' },
+      { bg: '#1a2840', skin: '#ecc8b0', hair: '#c4a068', accent: '#7ba8d4', cloth: '#3a4a6b' },
+      { bg: '#2e1a2e', skin: '#f4c8b0', hair: '#d4486b', accent: '#f0a8c4', cloth: '#6b2a4a' },
+      { bg: '#1e2e1e', skin: '#e8c8a8', hair: '#4a3a2a', accent: '#a8c474', cloth: '#3a4a2a' },
+      { bg: '#2a2a3e', skin: '#f0d0b8', hair: '#6b5a8c', accent: '#b8a8d4', cloth: '#4a3a5a' },
+      { bg: '#3a1e2a', skin: '#f4c4a8', hair: '#2a1a1a', accent: '#e88a8a', cloth: '#7a3a3a' },
+      { bg: '#1a3a3a', skin: '#eac8a8', hair: '#e8d474', accent: '#15e0c4', cloth: '#2a5a5a' },
+      { bg: '#2a2a1e', skin: '#f0c8a8', hair: '#8c6a3a', accent: '#d4b874', cloth: '#5a4a2a' },
+    ];
+
+    function createBustSVG(palette, seed) {
+      // Bust composition: 400x480 — centered head + shoulders
+      const p = palette;
+      const tilt = ((seed * 7) % 7) - 3;
+      const eyeH = 220 + ((seed * 3) % 6);
+      const faceShape = ((seed * 11) % 3); // 0: round, 1: oval, 2: long
+
+      const faceW = faceShape === 0 ? 68 : faceShape === 1 ? 62 : 58;
+      const faceH = faceShape === 0 ? 78 : faceShape === 1 ? 88 : 96;
+
+      return `<svg viewBox="0 0 400 480" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bg${seed}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${p.bg}" stop-opacity="1"/>
+        <stop offset="100%" stop-color="${p.bg}" stop-opacity="0.7"/>
+      </linearGradient>
+      <radialGradient id="light${seed}" cx="0.3" cy="0.25" r="0.8">
+        <stop offset="0%" stop-color="${p.accent}" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="${p.bg}" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="grain${seed}">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="${seed}"/>
+        <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.15 0"/>
+      </filter>
+    </defs>
+
+    <!-- Background -->
+    <rect width="400" height="480" fill="url(#bg${seed})"/>
+    <rect width="400" height="480" fill="url(#light${seed})"/>
+
+    <!-- Decorative botanical -->
+    <g opacity="0.15" stroke="${p.accent}" fill="none" stroke-width="1">
+      <path d="M 50 ${120 + seed * 5} Q 70 ${100 + seed * 3}, 90 ${130 + seed * 4}"/>
+      <circle cx="${50 + (seed % 3) * 10}" cy="${120 + seed * 5}" r="3" fill="${p.accent}" opacity="0.4"/>
+      <path d="M 340 ${380 - seed * 4} Q 360 ${360}, 370 ${390}"/>
+    </g>
+
+    <g transform="translate(200 240) rotate(${tilt})">
+      <!-- Shoulders / clothing -->
+      <path d="M -120 180 Q -100 90, -70 75 L 70 75 Q 100 90, 120 180 Z" fill="${p.cloth}"/>
+      <path d="M -120 180 Q -100 90, -70 75 L 70 75 Q 100 90, 120 180 Z" fill="${p.cloth}" filter="url(#grain${seed})"/>
+
+      <!-- Neck -->
+      <path d="M -18 60 Q -20 85, -15 95 L 15 95 Q 20 85, 18 60 Z" fill="${p.skin}"/>
+
+      <!-- Hair back -->
+      <path d="M -${faceW + 8} -30 Q -${faceW + 12} 40, -${faceW - 5} 80 L -${faceW + 25} 100 Q -${faceW + 30} 20, -${faceW + 10} -40 Z" fill="${p.hair}"/>
+      <path d="M ${faceW + 8} -30 Q ${faceW + 12} 40, ${faceW - 5} 80 L ${faceW + 25} 100 Q ${faceW + 30} 20, ${faceW + 10} -40 Z" fill="${p.hair}"/>
+
+      <!-- Face -->
+      <ellipse cx="0" cy="0" rx="${faceW}" ry="${faceH}" fill="${p.skin}"/>
+
+      <!-- Cheek blush -->
+      <ellipse cx="-32" cy="15" rx="12" ry="6" fill="${p.accent}" opacity="0.35"/>
+      <ellipse cx="32" cy="15" rx="12" ry="6" fill="${p.accent}" opacity="0.35"/>
+
+      <!-- Hair front -->
+      <path d="M -${faceW} -${faceH - 10} Q -30 -${faceH + 20}, 10 -${faceH + 15} Q 40 -${faceH + 5}, ${faceW} -${faceH - 15} Q ${faceW - 10} -${faceH - 40}, 20 -${faceH - 25} Q -40 -${faceH - 30}, -${faceW} -${faceH - 10}" fill="${p.hair}"/>
+      <path d="M -${faceW - 5} -${faceH - 20} Q -40 -${faceH + 5}, -15 -${faceH - 5} L -10 -10 Q -30 -${faceH - 30}, -${faceW - 5} -${faceH - 20}" fill="${p.hair}"/>
+
+      <!-- Eyes -->
+      <g transform="translate(0 ${eyeH - 240})">
+        <ellipse cx="-22" cy="0" rx="8" ry="4" fill="white"/>
+        <circle cx="-22" cy="0" r="4" fill="${p.hair}"/>
+        <circle cx="-22" cy="-1" r="1.5" fill="${p.accent}"/>
+        <path d="M -32 -5 Q -22 -8, -12 -5" stroke="${p.hair}" stroke-width="1.5" fill="none"/>
+
+        <ellipse cx="22" cy="0" rx="8" ry="4" fill="white"/>
+        <circle cx="22" cy="0" r="4" fill="${p.hair}"/>
+        <circle cx="22" cy="-1" r="1.5" fill="${p.accent}"/>
+        <path d="M 12 -5 Q 22 -8, 32 -5" stroke="${p.hair}" stroke-width="1.5" fill="none"/>
+      </g>
+
+      <!-- Nose -->
+      <path d="M 0 5 Q -3 20, 0 25 Q 3 22, 4 20" stroke="${p.hair}" stroke-width="1" fill="none" opacity="0.4"/>
+
+      <!-- Lips -->
+      <path d="M -10 40 Q 0 44, 10 40 Q 5 38, 0 39 Q -5 38, -10 40" fill="${p.accent}" opacity="0.8"/>
+    </g>
+
+    <!-- Signature -->
+    <text x="370" y="465" text-anchor="end" font-family="serif" font-size="10" fill="${p.accent}" opacity="0.5" font-style="italic">SL · ${String(seed).padStart(3, '0')}</text>
+  </svg>`;
+    }
+
+    function createFullSVG(palette, seed) {
+      // Full body: 400x600
+      const p = palette;
+      const pose = seed % 3;
+
+      return `<svg viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bgF${seed}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${p.bg}" stop-opacity="1"/>
+        <stop offset="100%" stop-color="${p.bg}" stop-opacity="0.75"/>
+      </linearGradient>
+      <radialGradient id="lightF${seed}" cx="0.5" cy="0.2" r="0.7">
+        <stop offset="0%" stop-color="${p.accent}" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="${p.bg}" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="grainF${seed}">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="${seed + 10}"/>
+        <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.12 0"/>
+      </filter>
+    </defs>
+
+    <rect width="400" height="600" fill="url(#bgF${seed})"/>
+    <rect width="400" height="600" fill="url(#lightF${seed})"/>
+
+    <!-- Decorative elements -->
+    <g opacity="0.12" stroke="${p.accent}" fill="none" stroke-width="1">
+      <circle cx="80" cy="80" r="30"/>
+      <circle cx="80" cy="80" r="20"/>
+      <path d="M 320 520 L 370 520 M 345 495 L 345 545"/>
+    </g>
+
+    <!-- Ground shadow -->
+    <ellipse cx="200" cy="560" rx="80" ry="8" fill="#000" opacity="0.25"/>
+
+    <g transform="translate(200 300)">
+      ${pose === 0 ? `
+        <!-- Standing pose -->
+        <!-- Legs -->
+        <path d="M -20 150 Q -30 200, -35 260 L -15 260 Q -12 200, -8 150 Z" fill="${p.cloth}"/>
+        <path d="M 20 150 Q 30 200, 35 260 L 15 260 Q 12 200, 8 150 Z" fill="${p.cloth}"/>
+        <!-- Shoes -->
+        <ellipse cx="-22" cy="262" rx="14" ry="5" fill="${p.hair}"/>
+        <ellipse cx="22" cy="262" rx="14" ry="5" fill="${p.hair}"/>
+        <!-- Torso -->
+        <path d="M -45 0 Q -50 80, -30 160 L 30 160 Q 50 80, 45 0 Z" fill="${p.cloth}"/>
+        <path d="M -45 0 Q -50 80, -30 160 L 30 160 Q 50 80, 45 0 Z" fill="${p.cloth}" filter="url(#grainF${seed})"/>
+        <!-- Collar -->
+        <path d="M -20 -5 L -10 10 L 0 5 L 10 10 L 20 -5 Z" fill="${p.accent}" opacity="0.6"/>
+        <!-- Arms -->
+        <path d="M -45 10 Q -65 60, -70 120 L -55 125 Q -50 70, -35 20 Z" fill="${p.cloth}"/>
+        <path d="M 45 10 Q 65 60, 70 120 L 55 125 Q 50 70, 35 20 Z" fill="${p.cloth}"/>
+        <!-- Hands -->
+        <circle cx="-62" cy="128" r="8" fill="${p.skin}"/>
+        <circle cx="62" cy="128" r="8" fill="${p.skin}"/>
+      ` : pose === 1 ? `
+        <!-- Sitting / leaning pose -->
+        <path d="M -30 150 Q -40 210, -50 255 L -30 262 Q -15 210, -10 150 Z" fill="${p.cloth}"/>
+        <path d="M 20 150 Q 35 200, 45 250 L 25 260 Q 10 200, 5 150 Z" fill="${p.cloth}"/>
+        <ellipse cx="-42" cy="260" rx="14" ry="5" fill="${p.hair}"/>
+        <ellipse cx="32" cy="260" rx="14" ry="5" fill="${p.hair}"/>
+        <path d="M -50 -5 Q -45 80, -30 160 L 40 155 Q 55 80, 50 -5 Z" fill="${p.cloth}"/>
+        <path d="M -50 -5 Q -45 80, -30 160 L 40 155 Q 55 80, 50 -5 Z" fill="${p.cloth}" filter="url(#grainF${seed})"/>
+        <path d="M -50 0 Q -80 40, -90 110 L -75 115 Q -60 50, -40 15 Z" fill="${p.cloth}"/>
+        <path d="M 50 5 Q 75 50, 75 115 L 60 120 Q 50 65, 35 20 Z" fill="${p.cloth}"/>
+        <circle cx="-82" cy="118" r="8" fill="${p.skin}"/>
+        <circle cx="68" cy="122" r="8" fill="${p.skin}"/>
+      ` : `
+        <!-- Dress pose -->
+        <path d="M -55 20 Q -75 150, -90 260 L 90 260 Q 75 150, 55 20 Z" fill="${p.cloth}"/>
+        <path d="M -55 20 Q -75 150, -90 260 L 90 260 Q 75 150, 55 20 Z" fill="${p.cloth}" filter="url(#grainF${seed})"/>
+        <path d="M -55 20 Q -30 40, 0 35 Q 30 40, 55 20" stroke="${p.accent}" stroke-width="2" fill="none" opacity="0.5"/>
+        <path d="M -50 -5 Q -45 60, -30 30 L 30 30 Q 45 60, 50 -5 Z" fill="${p.cloth}"/>
+        <path d="M -50 0 Q -75 40, -80 100 L -65 105 Q -55 55, -40 15 Z" fill="${p.skin}"/>
+        <path d="M 50 0 Q 75 40, 80 100 L 65 105 Q 55 55, 40 15 Z" fill="${p.skin}"/>
+      `}
+
+      <!-- Neck -->
+      <path d="M -15 -40 Q -15 -15, -10 -5 L 10 -5 Q 15 -15, 15 -40 Z" fill="${p.skin}"/>
+
+      <!-- Head -->
+      <ellipse cx="0" cy="-80" rx="42" ry="50" fill="${p.skin}"/>
+
+      <!-- Hair back -->
+      <path d="M -48 -95 Q -55 -40, -45 0 L -50 30 Q -62 -30, -58 -100 Z" fill="${p.hair}"/>
+      <path d="M 48 -95 Q 55 -40, 45 0 L 50 30 Q 62 -30, 58 -100 Z" fill="${p.hair}"/>
+
+      <!-- Hair top -->
+      <path d="M -45 -110 Q -20 -140, 10 -135 Q 35 -125, 48 -105 Q 40 -130, 0 -138 Q -40 -135, -45 -110" fill="${p.hair}"/>
+
+      <!-- Eyes (simple at this scale) -->
+      <ellipse cx="-13" cy="-75" rx="4" ry="3" fill="${p.hair}"/>
+      <ellipse cx="13" cy="-75" rx="4" ry="3" fill="${p.hair}"/>
+
+      <!-- Cheek -->
+      <ellipse cx="-20" cy="-62" rx="7" ry="4" fill="${p.accent}" opacity="0.3"/>
+      <ellipse cx="20" cy="-62" rx="7" ry="4" fill="${p.accent}" opacity="0.3"/>
+
+      <!-- Lips -->
+      <path d="M -5 -50 Q 0 -47, 5 -50" stroke="${p.accent}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <text x="370" y="585" text-anchor="end" font-family="serif" font-size="10" fill="${p.accent}" opacity="0.5" font-style="italic">SL · ${String(seed).padStart(3, '0')}</text>
+  </svg>`;
+    }
+
+    /* ============ PORTFOLIO DATA ============ */
+    const artworks = [
+      {
+        id: 0,
+        title: 'OC',
+        type: 'bust',
+        typeLabel: '半身像',
+        typeLabelEn: 'Bust',
+        price: 350,
+        image: 'images/BS.jpg'   // ← 你的图片路径
+      },
+      {
+        id: 1,
+        title: 'OC',
+        type: 'full',
+        typeLabel: '全身像',
+        typeLabelEn: 'Full Body',
+        price: 490,
+        image: 'images/雀雀.png'
+      },
+      {
+        id: 2,
+        title: 'OC',
+        type: 'full',
+        typeLabel: '半身像',
+        typeLabelEn: 'Bust',
+        price: 490,
+        image: 'images/奥宾.jpg'
+      },
+      {
+        id: 3,
+        title: 'OC',
+        type: 'full',
+        typeLabel: '半身+前景',
+        typeLabelEn: 'Bust',
+        price: 490,
+        image: 'images/嗜星初稿.jpg'
+      },
+      {
+        id: 4,
+        title: 'OC',
+        type: 'full',
+        typeLabel: '半身+服装',
+        typeLabelEn: 'Bust',
+        price: 490,
+        image: 'images/小狐狸.png'
+      },
+      {
+        id: 5,
+        title: 'OC',
+        type: 'full',
+        typeLabel: '半身像',
+        typeLabelEn: 'Bust',
+        price: 490,
+        image: 'images/LD.jpg'
+      },
+      // ...按这个格式继续添加，想放几张就写几条
+    ];
+
+    /* ============ RENDER MASONRY SCROLL ============ */
+    const track = document.getElementById('scrollTrack');
+
+    function renderMasonry() {
+      track.innerHTML = '';
+
+      // 第一组（原版）
+      const colA1 = document.createElement('div');
+      colA1.className = 'scroll-col';
+      const colB1 = document.createElement('div');
+      colB1.className = 'scroll-col';
+
+      // 第二组（用于无缝循环）
+      const colA2 = document.createElement('div');
+      colA2.className = 'scroll-col';
+      const colB2 = document.createElement('div');
+      colB2.className = 'scroll-col';
+
+      artworks.forEach((art, idx) => {
+        if (idx % 2 === 0) {
+          colA1.appendChild(createCard(art));
+          colA2.appendChild(createCard(art));
+        } else {
+          colB1.appendChild(createCard(art));
+          colB2.appendChild(createCard(art));
+        }
+      });
+
+      track.appendChild(colA1);
+      track.appendChild(colB1);
+      track.appendChild(colA2);
+      track.appendChild(colB2);
+    }
+
+    function createCard(art) {
+      const card = document.createElement('div');
+      card.className = 'art-card';
+      card.dataset.id = art.id;
+      card.dataset.type = art.type;
+      card.innerHTML = `
+    <img src="${art.image}" alt="${art.title}" loading="lazy">
+    <div class="art-overlay">
+      <div class="art-type">${art.typeLabel} · ${art.typeLabelEn}</div>
+      <div class="art-title">${art.title}</div>
+      <div class="art-price">¥ ${art.price} / 位</div>
+    </div>
+  `;
+      card.addEventListener('click', () => openLightbox(art.id));
+      return card;
+    }
+
+    renderMasonry();
+
+    /* ============ PAUSE ON HOVER ============ */
+    const viewport = document.getElementById('scrollViewport');
+    viewport.addEventListener('mouseenter', () => {
+      track.classList.add('paused');
+    });
+    viewport.addEventListener('mouseleave', () => {
+      track.classList.remove('paused');
+    });
+
+    /* ============ LIGHTBOX ============ */
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightboxImage');
+    const lightboxTitle = document.getElementById('lightboxTitle');
+    const lightboxType = document.getElementById('lightboxType');
+    const lightboxClose = document.getElementById('lightboxClose');
+
+    function openLightbox(id) {
+      const art = artworks.find(a => a.id === id);
+      if (!art) return;
+      lightboxImage.innerHTML = `<img src="${art.image}" alt="${art.title}">`;
+      lightboxTitle.textContent = art.title;
+      lightboxType.textContent = `${art.typeLabel} · ¥ ${art.price}`;
+      lightbox.classList.add('active');
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+    }
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+    /* ============ QUEUE SYSTEM 排单系统 ============ */
+
+    // 📝 在这里修改你的初始数据 ——————————————————
+    const queueConfig = {
+      isOpen: true,           // true = 接稿中 / false = 暂停接稿
+      maxSlots: 5,            // 最多接几单
+      workingId: '26·4·18·01', // 当前正在画的号码（没在画就写 null）
+      queue: [
+        // 格式：{ id: '号码', date: 'YYYY-MM-DD' }
+        { id: '26·4·18·01', date: '2026-04-18' },
+        { id: '26·4·19·01', date: '2026-04-19' },
+        { id: '26·4·20·01', date: '2026-04-20' },
+      ]
+    };
+    // ——————————————————————————————————————————
+
+    const queueListEl = document.getElementById('queueList');
+    const queueAddBtn = document.getElementById('queueAdd');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const statusToggle = document.getElementById('statusToggle');
+    const countCurrent = document.getElementById('countCurrent');
+    const countMax = document.getElementById('countMax');
+    const countRemain = document.getElementById('countRemain');
+    const workingNumber = document.getElementById('workingNumber');
+
+    // 自动生成今天的号码（同一天按顺序 01、02、03...）
+    function generateTodayId() {
+      const now = new Date();
+      const y = String(now.getFullYear()).slice(-2);
+      const m = now.getMonth() + 1;
+      const d = now.getDate();
+      const prefix = `${y}·${m}·${d}`;
+
+      // 数今天已有几个
+      const todayCount = queueConfig.queue.filter(q => q.id.startsWith(prefix + '·')).length;
+      const serial = String(todayCount + 1).padStart(2, '0');
+
+      const todayStr = `${now.getFullYear()}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      return { id: `${prefix}·${serial}`, date: todayStr };
+    }
+
+    function renderQueue() {
+      // 按日期排序
+      queueConfig.queue.sort((a, b) => a.date.localeCompare(b.date));
+
+      // 渲染列表
+      queueListEl.innerHTML = '';
+      queueConfig.queue.forEach((item, idx) => {
+        const el = document.createElement('div');
+        el.className = 'queue-item' + (item.id === queueConfig.workingId ? ' active' : '');
+        el.innerHTML = `
+      <span>${item.id}</span>
+      <button class="queue-item-work" title="设为正在绘制">◉</button>
+      <button class="queue-item-remove" title="删除此号码">×</button>
+    `;
+        el.querySelector('.queue-item-work').addEventListener('click', () => {
+          queueConfig.workingId = queueConfig.workingId === item.id ? null : item.id;
+          renderQueue();
+        });
+        el.querySelector('.queue-item-remove').addEventListener('click', () => {
+          queueConfig.queue.splice(idx, 1);
+          if (queueConfig.workingId === item.id) queueConfig.workingId = null;
+          renderQueue();
+        });
+        queueListEl.appendChild(el);
+      });
+
+      // 状态计数
+      const total = queueConfig.queue.length;
+      countCurrent.textContent = total;
+      countMax.textContent = queueConfig.maxSlots;
+      const remain = Math.max(0, queueConfig.maxSlots - total);
+      countRemain.textContent = remain;
+
+      // Working 显示
+      workingNumber.textContent = queueConfig.workingId || '—';
+
+      // 接稿状态
+      if (queueConfig.isOpen && remain > 0) {
+        statusDot.classList.remove('closed');
+        statusText.textContent = '接稿中';
+      } else if (queueConfig.isOpen && remain === 0) {
+        statusDot.classList.add('closed');
+        statusText.textContent = '已满单';
+      } else {
+        statusDot.classList.add('closed');
+        statusText.textContent = '暂停接稿';
+      }
+    }
+
+    // 添加号码按钮
+    queueAddBtn.addEventListener('click', () => {
+      queueConfig.queue.push(generateTodayId());
+      renderQueue();
+    });
+
+    // 接稿状态切换
+    statusToggle.addEventListener('click', () => {
+      queueConfig.isOpen = !queueConfig.isOpen;
+      renderQueue();
+    });
+
+    renderQueue();
+    
+    /* ============ THEME TOGGLE ============ */
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      const current = document.body.dataset.theme;
+      document.body.dataset.theme = current === 'dark' ? 'light' : 'dark';
+    });
+
+    /* ============ PRICE ESTIMATOR ============ */
+    /* ============ PRICE ESTIMATOR ============ */
+    const typeSeg = document.getElementById('typeSeg');
+    const bgSlider = document.getElementById('bgSlider');
+    const costumeSlider = document.getElementById('costumeSlider');
+    const countSlider = document.getElementById('countSlider');
+    const bgValue = document.getElementById('bgValue');
+    const costumeValue = document.getElementById('costumeValue');
+    const countValue = document.getElementById('countValue');
+    const totalValue = document.getElementById('totalValue');
+
+    // 价格档位
+    const bgPrices = [0, 200, 350, 500];
+    const costumePrices = [0, 100, 250, 400];
+
+    let selectedType = 'bust';
+
+    // 类型切换
+    typeSeg.querySelectorAll('.seg-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        typeSeg.querySelectorAll('.seg-option').forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        selectedType = opt.dataset.value;
+        typeSeg.dataset.value = selectedType;
+        updateTotal();
+      });
+    });
+
+    // 计算总价
+    // 当前显示的价格（用于滚动起点）
+    let currentTotal = 350;
+
+    function animateNumber(from, to, duration = 500) {
+      const start = performance.now();
+      const diff = to - from;
+
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // 缓动函数：ease-out，开头快结尾慢，像减速一样自然
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = Math.round(from + diff * eased);
+        totalValue.textContent = value.toLocaleString();
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          totalValue.textContent = to.toLocaleString();
+        }
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    function updateTotal() {
+      const base = selectedType === 'bust' ? 350 : 490;
+      const bg = bgPrices[parseInt(bgSlider.value)];
+      const costume = costumePrices[parseInt(costumeSlider.value)];
+      const count = parseInt(countSlider.value);
+
+      bgValue.textContent = `+¥ ${bg}`;
+      costumeValue.textContent = `+¥ ${costume}`;
+      countValue.textContent = `${count} 位`;
+
+      const total = (base + bg + costume) * count;
+
+      // 从当前值滚动到新值
+      animateNumber(currentTotal, total);
+      currentTotal = total;
+    }
+
+    // 滑块实时监听（input 事件 = 拖动时就触发）
+    bgSlider.addEventListener('input', updateTotal);
+    costumeSlider.addEventListener('input', updateTotal);
+    countSlider.addEventListener('input', updateTotal);
+
+    // 初始化
+    updateTotal();
+  </script>
+
+</body>
+
+</html>
